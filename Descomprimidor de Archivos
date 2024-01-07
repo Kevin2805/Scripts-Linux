@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function ctrl_C()
+{
+  echo -e "\n\n[!]Saliendo...\n"
+  exit 1
+}
+
+# Ctrl+C
+trap ctrl_c INT
+#nombre del archivo que se debe descomprimir
+nombrePrimerArchivo="data.gz"
+#posicion y el nombre del siguiente archivo a descomprimir
+nombreArchivoDescomprimido="$(7z l data.gz | tail -n 3 | head -n 1 | awk 'NF{print $NF}')"
+#descomprimir el archivo
+7z x $nombrePrimerArchivo &>/dev/null
+#en el while lo que hace es que revisa si en el ultimo archivo descomprimido hay mas para descomprimir
+while [ $nombreArchivoDescomprimido ]; do
+  #muestra el nombre del archivo descomprimido
+  echo -e "\n[+] Nuevo archivo descomprimido: $nombreArchivoDescomprimido"
+  #descomprime el archivo
+  7z x $nombreArchivoDescomprimido &>/dev/null
+  #posicion y el nombre del siguiente archivo a descomprimir
+  nombreArchivoDescomprimido="$(7z l $nombreArchivoDescomprimido | tail -n 3 | head -n 1 | awk 'NF{print $NF}')"
+  #si al final tira un error de descompresion significa que el archivo no se puede descomprimir mas
+done
