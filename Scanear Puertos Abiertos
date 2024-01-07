@@ -1,0 +1,19 @@
+#!/bin/bash
+
+function ctrl_c(){
+ echo -e "\n\n[!]Saliendo...\n"
+ tput cnorm; exit 1
+}
+
+#Ctrl+C
+trap ctrl_c INT
+
+tput civis #oculta el cursor
+#recorre todos los puertos posibles
+for port in $(seq 1 65535); do
+  #manda un parametro vacio al tcp del localhost y al puerto para conocer el estado
+  (echo '' > /dev/tcp/127.0.0.1/$port) 2>/dev/null && echo "[+] $port - OPEN" &
+done; wait
+
+#Recuperar el cursor
+tput cnorm
